@@ -49,4 +49,11 @@ __注意：👉本项目会持续新增功能，但持续维护。如使用中�
 * 👉工具栏功能自定义</br>
 * 👉导入解析浏览器书签，同步书签数据</br>
 
-  
+  ## 其他链接
+* [我的博客](https:/zhanhongzhu.top)</br>
+* [红隼书签](http://bookmark.zhanhongzhu.top)</br>
+* [掘金](https://juejin.im/user/5cc6757ce51d456e5238ca23)</br>
+* [思否](https://segmentfault.com/u/huixiaodeyanjingzhenmei)</br>
+* [CSDN](https://blog.csdn.net/weixin_43779957)</br>
+* [简书](https://www.jianshu.com/u/b8d251f62b08)</br>
+* [语雀](https://www.yuque.com/zhanhongzhu)</br>
