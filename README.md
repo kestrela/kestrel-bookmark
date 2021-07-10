@@ -19,9 +19,9 @@ __注意：本项目会持续新增功能，但持续维护。如使用中发现
 
 ## 效果
 
-![](https://gitee.com/zhanhongzhu/kestrel-bookmark/blob/master/kestrel01.png)
+![](./kestrel01.png)
 
-![](https://gitee.com/zhanhongzhu/kestrel-bookmark/blob/master/kestrel02.png)
+![](./kestrel02.png)
 
 ## 授权协议
 * MIT
