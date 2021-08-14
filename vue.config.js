@@ -5,7 +5,7 @@ module.exports = {
     proxy: {
       // 配置前端代理转发地址
       '/api': {
-        target: 'http://127.0.0.1:8080',
+        target: 'http://192.168.1.5:5000',
         changeOrigin: true,
         pathRewrite: {
           '^/api': '/api'

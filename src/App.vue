@@ -1,17 +1,18 @@
 <template>
   <div class="bg"></div>
   <div id="app">
-    <div class="bookmark">
+    <div class="bookmark" id="bookmark">
       <div class="tool-bar">
         <div class="tool-logo">
           <a href="" target="_blank"><img src="./assets/svg/logo.svg" title="更多数据" class="tool-icon" />红隼书签</a>
         </div>
         <div>
-          <!-- <img src="./assets/svg/more.svg" class="tool-icon" /> -->
           <div class="search-box">
             <img src="./assets/svg/search.svg">
             <input type="text" placeholder="请输入书签名称" v-model="searchVal" />
           </div>
+          <img src="./assets/svg/add.svg" class="tool-icon" @click="add" />
+
           <a title="我的博客" href="https://zhanhongzhu.top" target="_blank"><img src="./assets/svg/blog.svg" class="tool-icon" /></a>
           <a title="在线翻译" href="https://translate.google.cn" target="_blank"><img src="./assets/svg/translate.svg" class="tool-icon" /></a>
           <a title="我的码云" href="https://gitee.com/zhanhongzhu/kestrel-bookmark" target="_blank"><img src="./assets/svg/gitee.svg" class="tool-icon" /></a>
@@ -52,29 +53,26 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
+  <Dialog v-model="isDetailVisible" @closeViews="closeViews" />
 </template>
 
 <script>
 import { reactive, toRefs } from '@vue/reactivity'
 import { myData } from './assets/Json/印象笔记.js'
 import { watch } from '@vue/runtime-core'
+import Dialog from './components/Dialog.vue'
 import gsap from 'gsap'
 var rowData = myData
 export default {
+  components: { Dialog },
   name: 'kestrel-bookmark',
   setup() {
-    const { selectType, navigate } = MyFunction()
     // 扁平化数组
-    function flatten(arr, result = []) {
+    const flatten = (arr, result = []) => {
       for (const item of arr) {
-        if (Array.isArray(item.children)) {
-          flatten(item.children, result)
-        } else {
-          result.push(item)
-        }
+        Array.isArray(item.children) ? flatten(item.children, result) : result.push(item)
       }
       return result
     }
@@ -83,37 +81,39 @@ export default {
       data: rowData,
       bookMark: rowData[0].children,
       searchVal: '',
-      allData: flatten(rowData)
+      allData: flatten(rowData),
+      isDetailVisible: false
     })
 
-    // 全部数据筛选功
+    // 全部数据筛选功能
     watch(
       () => data.searchVal,
       () => {
-        data.bookMark = data.allData.filter((v) => v.title.toLowerCase().indexOf(data.searchVal.toLowerCase()) > -1
+        data.bookMark = data.allData.filter(
+          (v) =>
+            v.title.toLowerCase().indexOf(data.searchVal.toLowerCase()) > -1
         )
       }
     )
-    // 公共函数
-    function MyFunction() {
-      // 选择菜单
-      function selectType(item, index) {
-        data.bookMark = item.children
-        data.activeIndex = index
-      }
-      // 链接跳转
-      function navigate(card) {
-        window.open(card.url, '_target')
-      }
-      return {
-        selectType,
-        navigate
-      }
+    // 标签类别选择
+    const selectType = (item, index) => {
+      data.bookMark = item.children
+      data.activeIndex = index
     }
+    // 标签跳转
+    const navigate = (v) => window.open(v.url, '_target')
+
+    // 新增
+    const add = () => (data.isDetailVisible = !data.isDetailVisible)
+
+    // 关闭弹窗事件
+    const closeViews = (v) => (data.isDetailVisible = v)
     return {
       ...toRefs(data),
       selectType,
-      navigate
+      navigate,
+      add,
+      closeViews
     }
   },
   methods: {

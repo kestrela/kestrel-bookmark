@@ -9,6 +9,7 @@
   "dependencies": {
     "axios": "^0.21.0",
     "core-js": "^3.6.5",
+    "element-plus": "^1.0.2-beta.70",
     "granim": "^2.0.0",
     "gsap": "^3.7.0",
     "vue": "^3.0.0"
