@@ -11,8 +11,7 @@
             <img src="./assets/svg/search.svg">
             <input type="text" placeholder="请输入书签名称" v-model="searchVal" />
           </div>
-          <img src="./assets/svg/add.svg" class="tool-icon" @click="add" />
-
+          <img src="./assets/svg/add.svg" class="tool-icon" @click="add({},'add')" />
           <a title="我的博客" href="https://zhanhongzhu.top" target="_blank"><img src="./assets/svg/blog.svg" class="tool-icon" /></a>
           <a title="在线翻译" href="https://translate.google.cn" target="_blank"><img src="./assets/svg/translate.svg" class="tool-icon" /></a>
           <a title="我的码云" href="https://gitee.com/zhanhongzhu/kestrel-bookmark" target="_blank"><img src="./assets/svg/gitee.svg" class="tool-icon" /></a>
@@ -32,8 +31,13 @@
             <div class="card-item list-complete-item" v-for="(card,idx) in bookMark" :key="idx" @click="navigate(card)">
               <div class="logo-img"><img :src="card.logo?card.logo:'/img/logo.f38dc2e8.svg'" /></div>
               <div class="logo-box">
-                <span class="title">{{card.title}}</span>
-                <span class="subtitle">{{card.desc}}</span>
+                <span class="logo-box-tools">
+                  <i class="el-icon-edit" @click.stop="add(card,'modify')"></i>
+                  <i class="el-icon-delete" @click.stop="deleteClick(card)"></i>
+                </span>
+
+                <span class="title">{{card.title || 'Kestrel-bookmark'}}</span>
+                <span class="subtitle">{{card.desc || "红隼书签-为中国 Web 前端开发人员提供优质网站导航"}}</span>
               </div>
             </div>
           </transition-group>
@@ -55,7 +59,7 @@
       </div>
     </div>
   </div>
-  <Dialog class="my-dialog" v-model="isDetailVisible" @closeViews="closeViews" :selectType="activeIndex" @fresh="search"/>
+  <Dialog class="my-dialog" v-model="isDetailVisible" @closeViews="closeViews" :detail="detail" :selectType="activeIndex" @fresh="search" />
 </template>
 
 <script>
@@ -64,6 +68,7 @@ import { myData } from './assets/Json/印象笔记.js'
 import { watch } from '@vue/runtime-core'
 import Dialog from './components/Dialog.vue'
 import gsap from 'gsap'
+import { ElMessage } from 'element-plus'
 var rowData = []
 function getData(fn = () => {}) {
   // 数据持久化
@@ -97,7 +102,8 @@ export default {
       bookMark: rowData[0].children,
       searchVal: '',
       allData: flatten(rowData),
-      isDetailVisible: false
+      isDetailVisible: false,
+      detail: {}
     })
 
     // 全部数据筛选功能
@@ -119,17 +125,43 @@ export default {
     const navigate = (v) => window.open(v.url, '_target')
 
     // 新增书签
-    const add = () => (data.isDetailVisible = !data.isDetailVisible)
-
+    function add(row = {}, flag = 'add') {
+      const temp = {...row}
+      if (flag === 'modify') {
+        data.detail = Object.assign(temp, { type: rowData[data.activeIndex].type, flag: 'modify' })
+      } else {
+        data.detail = Object.assign({}, { type: rowData[data.activeIndex].type, flag: 'add' })
+      }
+      data.isDetailVisible = true
+    }
     // 关闭弹窗事件
     const closeViews = (v) => (data.isDetailVisible = v)
+
+    // 获取数据
     const search = async () => {
-      console.log('---->')
       await getData(() => {
+        data.data = rowData
         data.bookMark = rowData[data.activeIndex].children
       })
     }
+    // 删除
+    const deleteClick = (row) => {
+      const myData = JSON.parse(localStorage.getItem('BOOKMARK'))
+      const delDetail = Object.assign(row, { type: rowData[data.activeIndex].type })
+      for (let i = 0; i < myData.length; i++) {
+        if (delDetail.type === myData[i].type) {
+          const cindex = myData[i].children.findIndex(s => s.title === delDetail.title)
+          if (cindex > -1) {
+            myData[i].children.splice(cindex, 1)
+            localStorage.setItem('BOOKMARK', JSON.stringify(myData))
+            ElMessage.success('删除成功')
+            search()
+          }
+        }
+      }
+    }
     return {
+      deleteClick,
       ...toRefs(data),
       selectType,
       navigate,
@@ -251,6 +283,9 @@ export default {
           animation: 0.3ms;
           box-shadow: 0 8px 18px 0 rgba(31, 38, 135, 0.3);
         }
+        &:hover .logo-box-tools{
+          opacity: 0.85;
+        }
       }
     }
   }
@@ -329,7 +364,7 @@ export default {
 .logo-img {
   width: 62px;
   height: 100%;
-  margin-right: 14px;
+  margin-right: 10px;
   img {
     height: 100%;
     width: 100%;
@@ -340,10 +375,11 @@ export default {
   }
 }
 .logo-box {
+  position: relative;
   flex: 1;
   .title {
     width: 100%;
-    max-width: 190px;
+    max-width: 145px;
     display: block;
     padding-top: 3px;
     font-size: 16px;
@@ -401,5 +437,22 @@ export default {
   height: 100%;
   width: 100%;
   background: url(./assets/bg.jpg);
+}
+
+.logo-box-tools {
+  position: absolute;
+  right: 0;
+  top: 0;
+  opacity: 0;
+  transition:0.4s opacity;
+  i {
+    padding: 4px;
+    display: inline-block;
+    &:hover {
+      color: #e03b5d;
+      background: #ff00001f;
+      border-radius: 5px;
+    }
+  }
 }
 </style>
