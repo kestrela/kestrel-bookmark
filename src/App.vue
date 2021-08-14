@@ -55,7 +55,7 @@
       </div>
     </div>
   </div>
-  <Dialog v-model="isDetailVisible" @closeViews="closeViews" />
+  <Dialog class="my-dialog" v-model="isDetailVisible" @closeViews="closeViews" :selectType="activeIndex" @fresh="search"/>
 </template>
 
 <script>
@@ -64,7 +64,19 @@ import { myData } from './assets/Json/印象笔记.js'
 import { watch } from '@vue/runtime-core'
 import Dialog from './components/Dialog.vue'
 import gsap from 'gsap'
-var rowData = myData
+var rowData = []
+function getData(fn = () => {}) {
+  // 数据持久化
+  if (localStorage.getItem('BOOKMARK')) {
+    console.log('持久化数据')
+    rowData = JSON.parse(localStorage.getItem('BOOKMARK'))
+  } else {
+    localStorage.setItem('BOOKMARK', JSON.stringify(myData))
+    rowData = myData
+  }
+  fn()
+}
+getData()
 export default {
   components: { Dialog },
   name: 'kestrel-bookmark',
@@ -72,10 +84,13 @@ export default {
     // 扁平化数组
     const flatten = (arr, result = []) => {
       for (const item of arr) {
-        Array.isArray(item.children) ? flatten(item.children, result) : result.push(item)
+        Array.isArray(item.children)
+          ? flatten(item.children, result)
+          : result.push(item)
       }
       return result
     }
+
     const data = reactive({
       activeIndex: 0,
       data: rowData,
@@ -95,25 +110,32 @@ export default {
         )
       }
     )
-    // 标签类别选择
+    // 书签类别选择
     const selectType = (item, index) => {
       data.bookMark = item.children
       data.activeIndex = index
     }
-    // 标签跳转
+    // 书签跳转
     const navigate = (v) => window.open(v.url, '_target')
 
-    // 新增
+    // 新增书签
     const add = () => (data.isDetailVisible = !data.isDetailVisible)
 
     // 关闭弹窗事件
     const closeViews = (v) => (data.isDetailVisible = v)
+    const search = async () => {
+      console.log('---->')
+      await getData(() => {
+        data.bookMark = rowData[data.activeIndex].children
+      })
+    }
     return {
       ...toRefs(data),
       selectType,
       navigate,
       add,
-      closeViews
+      closeViews,
+      search
     }
   },
   methods: {
