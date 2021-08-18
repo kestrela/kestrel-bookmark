@@ -33,14 +33,13 @@
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="closeViews">取 消</el-button>
-        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="closeViews" size="small">取 消</el-button>
+        <el-button type="primary" @click="submitForm" size="small">确 定</el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 <script>
-import gsap from 'gsap'
 import { reactive, ref, toRefs } from '@vue/reactivity'
 import { nextTick, watch } from '@vue/runtime-core'
 import { ElMessage } from 'element-plus'
@@ -154,26 +153,6 @@ export default {
     }
   },
   methods: {
-    beforeEnter(el) {
-      el.style.opacity = 0
-      el.style.height = 0
-    },
-    enter(el, done) {
-      gsap.to(el, {
-        opacity: 1,
-        height: '1.6em',
-        delay: el.dataset.index * 0.15,
-        onComplete: done
-      })
-    },
-    leave(el, done) {
-      gsap.to(el, {
-        opacity: 0,
-        height: 0,
-        delay: el.dataset.index * 0.15,
-        onComplete: done
-      })
-    }
   }
 }
 </script>

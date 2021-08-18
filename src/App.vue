@@ -14,9 +14,10 @@
           <img src="./assets/svg/add.svg" class="tool-icon" @click="add({},'add')" />
           <a title="我的博客" href="https://zhanhongzhu.top" target="_blank"><img src="./assets/svg/blog.svg" class="tool-icon" /></a>
           <a title="在线翻译" href="https://translate.google.cn" target="_blank"><img src="./assets/svg/translate.svg" class="tool-icon" /></a>
-          <a title="我的码云" href="https://gitee.com/zhanhongzhu/kestrel-bookmark" target="_blank"><img src="./assets/svg/gitee.svg" class="tool-icon" /></a>
-          <a title="我的github" href="https://github.com/zhanhongzhu/kestrel-bookmark" target="_blank"><img src="./assets/svg/github.svg" class="tool-icon" /></a>
+          <span class="login-s" @click="loginClick"><img src="./assets/svg/user.svg" class="tool-icon" /><span class="login-status" :title="userInfo.username">{{userInfo.username.slice(0, 5)}}</span></span>
         </div>
+
+        <!-- userInfo.objectId?LoginOut:handleUserLogin -->
       </div>
       <!-- 侧边导航栏 -->
       <div class="box-m">
@@ -45,7 +46,6 @@
                   <i class="el-icon-edit" @click.stop="add(card,'modify')"></i>
                   <i class="el-icon-delete" @click.stop="deleteClick(card)"></i>
                 </span>
-
                 <span class="title">{{card.title || 'Kestrel-bookmark'}}</span>
                 <span class="subtitle">{{card.desc || "红隼书签-为中国 Web 前端开发人员提供优质网站导航"}}</span>
               </div>
@@ -69,16 +69,22 @@
       </div>
     </div>
   </div>
+  <!-- 新增/修改弹窗 -->
   <Dialog class="my-dialog" v-model="isDetailVisible" @closeViews="closeViews" :detail="detail" :selectType="activeIndex" @fresh="search" />
+  <!-- 登录弹窗 -->
+  <Login v-model="isLoginVisible" @closeViews="closeLoginViews" @setUser="setUsername"/>
 </template>
 <script>
 import { reactive, toRefs } from '@vue/reactivity'
 import { myData } from './assets/Json/印象笔记.js'
 import { watch } from '@vue/runtime-core'
 import Dialog from './components/Dialog.vue'
+import Login from './components/Login.vue'
 import gsap from 'gsap'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { importBookmark, exportBookmark } from './components/utils.js'
+import Cookie from 'js-cookie'
+import Api from './Api/user.js'
 var rowData = []
 function getData(fn = () => {}) {
   // 数据持久化
@@ -93,7 +99,7 @@ function getData(fn = () => {}) {
 }
 getData()
 export default {
-  components: { Dialog },
+  components: { Dialog, Login },
   name: 'kestrel-bookmark',
   setup() {
     // 扁平化数组
@@ -113,8 +119,21 @@ export default {
       searchVal: '',
       allData: flatten(rowData),
       isDetailVisible: false,
-      detail: {}
+      isLoginVisible: false,
+      detail: {},
+      userInfo: {
+        username: '未登录'
+      }
     })
+
+    const setUsername = () => {
+      if (Cookie.get('userInfo')) {
+        data.userInfo = JSON.parse(Cookie.get('userInfo'))
+      } else {
+        data.userInfo = {username: '未登录'}
+      }
+    }
+    setUsername()
 
     // 全部数据筛选功能
     watch(
@@ -150,8 +169,15 @@ export default {
       }
       data.isDetailVisible = true
     }
+
+    // 用户登录
+    const handleUserLogin = () => {
+      data.isLoginVisible = true
+    }
+
     // 关闭弹窗事件
     const closeViews = (v) => (data.isDetailVisible = v)
+    const closeLoginViews = (v) => (data.isLoginVisible = v)
 
     // 获取数据
     const search = async () => {
@@ -180,6 +206,29 @@ export default {
         }
       }
     }
+    // 退出登录
+    const LoginOut = () => {
+      ElMessageBox.confirm('确认要退出登录?', '温馨提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const params = { username: '', password: '' }
+        Api.logout(params.username, params.password).then((res) => {
+          Cookie.remove('userInfo')
+          setUsername()
+        })
+        ElMessage({
+          type: 'success',
+          message: '删除成功!'
+        })
+      })
+    }
+    // 登录或退出
+    const loginClick = () => {
+      data.userInfo.objectId ? LoginOut() : handleUserLogin()
+    }
+
     return {
       deleteClick,
       ...toRefs(data),
@@ -187,9 +236,12 @@ export default {
       navigate,
       add,
       closeViews,
+      closeLoginViews,
       search,
       importBookmark,
-      exportBookmark
+      exportBookmark,
+      loginClick,
+      setUsername
     }
   },
   methods: {
@@ -524,5 +576,19 @@ export default {
     position: absolute;
     cursor: pointer;
   }
+}
+.login-status {
+  display: inline-block;
+  font-size: 12px;
+  padding-right: 8px;
+  color: #999;
+  cursor: pointer;
+}
+
+.login-s .tool-icon {
+  margin-right: 5px;
+}
+.login-s:hover .login-status {
+  color: #e03b5d;
 }
 </style>
