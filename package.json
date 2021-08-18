@@ -12,6 +12,8 @@
     "element-plus": "^1.0.2-beta.70",
     "granim": "^2.0.0",
     "gsap": "^3.7.0",
+    "js-cookie": "^3.0.0",
+    "leancloud-storage": "^4.11.1",
     "vue": "^3.0.0"
   },
   "devDependencies": {

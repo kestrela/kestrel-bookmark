@@ -5,7 +5,7 @@ module.exports = {
     proxy: {
       // 配置前端代理转发地址
       '/api': {
-        target: 'http://192.168.1.5:5000',
+        target: 'https://api.zhanhongzhu.top',
         changeOrigin: true,
         pathRewrite: {
           '^/api': '/api'

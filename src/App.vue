@@ -215,6 +215,7 @@ export default {
       }).then(() => {
         const params = { username: '', password: '' }
         Api.logout(params.username, params.password).then((res) => {
+          console.log(res)
           Cookie.remove('userInfo')
           setUsername()
         })
