@@ -4,7 +4,7 @@
     <div class="bookmark" id="bookmark">
       <div class="tool-bar">
         <div class="tool-logo">
-          <a href="" target="_blank"><img src="./assets/svg/logo.svg" title="更多数据" class="tool-icon" />红隼书签</a>
+          <a href="" target="_blank"><img src="./assets/svg/logo.svg" title="感谢作者 是半夏鸭 设计的图标" class="tool-icon" />红隼书签</a>
         </div>
         <div>
           <div class="search-box">
@@ -21,9 +21,19 @@
       <!-- 侧边导航栏 -->
       <div class="box-m">
         <div class="left-box">
-          <div class="label" :class="activeIndex===index?'active':'inactive'" v-for="(item,index) in data" :key="index" @click="selectType(item,index)">
-            <img src="./assets/svg/file.svg" />
-            <div class="text-elipss"> {{item.type}} </div>
+          <div class="left-box-item">
+            <div class="label" :class="activeIndex===index?'active':'inactive'" v-for="(item,index) in data" :key="index" @click="selectType(item,index)">
+              <img src="./assets/svg/file.svg" />
+              <div class="text-elipss"> {{item.type}} </div>
+            </div>
+          </div>
+          <!-- 导入导出 -->
+          <div class="import-tool">
+            <span class="import-text">导入/导出：&nbsp;</span>
+            <i class="el-icon-upload2" title="导入浏览器书签" @click="importBookmark">
+              <input type="file" ref="filElem" id="file">
+            </i>
+            <i class="el-icon-download" title="导出浏览器书签" @click="exportBookmark"></i>
           </div>
         </div>
         <div class="right-box">
@@ -69,6 +79,7 @@ import { watch } from '@vue/runtime-core'
 import Dialog from './components/Dialog.vue'
 import gsap from 'gsap'
 import { ElMessage } from 'element-plus'
+import { importBookmark, exportBookmark } from './components/utils.js'
 var rowData = []
 function getData(fn = () => {}) {
   // 数据持久化
@@ -126,11 +137,17 @@ export default {
 
     // 新增书签
     function add(row = {}, flag = 'add') {
-      const temp = {...row}
+      const temp = { ...row }
       if (flag === 'modify') {
-        data.detail = Object.assign(temp, { type: rowData[data.activeIndex].type, flag: 'modify' })
+        data.detail = Object.assign(temp, {
+          type: rowData[data.activeIndex].type,
+          flag: 'modify'
+        })
       } else {
-        data.detail = Object.assign({}, { type: rowData[data.activeIndex].type, flag: 'add' })
+        data.detail = Object.assign(
+          {},
+          { type: rowData[data.activeIndex].type, flag: 'add' }
+        )
       }
       data.isDetailVisible = true
     }
@@ -147,10 +164,14 @@ export default {
     // 删除
     const deleteClick = (row) => {
       const myData = JSON.parse(localStorage.getItem('BOOKMARK'))
-      const delDetail = Object.assign(row, { type: rowData[data.activeIndex].type })
+      const delDetail = Object.assign(row, {
+        type: rowData[data.activeIndex].type
+      })
       for (let i = 0; i < myData.length; i++) {
         if (delDetail.type === myData[i].type) {
-          const cindex = myData[i].children.findIndex(s => s.title === delDetail.title)
+          const cindex = myData[i].children.findIndex(
+            (s) => s.title === delDetail.title
+          )
           if (cindex > -1) {
             myData[i].children.splice(cindex, 1)
             localStorage.setItem('BOOKMARK', JSON.stringify(myData))
@@ -167,7 +188,9 @@ export default {
       navigate,
       add,
       closeViews,
-      search
+      search,
+      importBookmark,
+      exportBookmark
     }
   },
   methods: {
@@ -218,7 +241,7 @@ export default {
     border: 1px solid rgba(255, 255, 255, 0.18);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
     position: relative;
-    overflow-y: auto;
+    // overflow-y: auto;
     padding: 8px 0;
     img {
       width: 20px;
@@ -283,7 +306,7 @@ export default {
           animation: 0.3ms;
           box-shadow: 0 8px 18px 0 rgba(31, 38, 135, 0.3);
         }
-        &:hover .logo-box-tools{
+        &:hover .logo-box-tools {
           opacity: 0.85;
         }
       }
@@ -444,7 +467,7 @@ export default {
   right: 0;
   top: 0;
   opacity: 0;
-  transition:0.4s opacity;
+  transition: 0.4s opacity;
   i {
     padding: 4px;
     display: inline-block;
@@ -453,6 +476,54 @@ export default {
       background: #ff00001f;
       border-radius: 5px;
     }
+  }
+}
+
+.import-tool {
+  position: absolute;
+  width: 100%;
+  background: #fbf5f5;
+  height: 36px;
+  padding: 3px 15px;
+  display: flex;
+  align-items: center;
+  bottom: 0;
+  z-index: 99;
+  i {
+    font-size: 18px;
+    margin: 1px 4px;
+    padding: 4px;
+    cursor: pointer;
+    color: #e03b5d;
+    background: #ff00001f;
+    border-radius: 5px;
+    opacity: 0.7;
+    &:hover {
+      color: #e03b5d;
+      background: #c804041f;
+      opacity: 1;
+    }
+  }
+}
+.left-box-item {
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
+.import-text {
+  font-size: 12px;
+  color: #999;
+  margin-right: 3px;
+}
+.el-icon-upload2 {
+  position: relative;
+  input {
+    width: 1.46rem;
+    height: 100%;
+    z-index: 1;
+    opacity: 0;
+    position: absolute;
+    cursor: pointer;
   }
 }
 </style>
