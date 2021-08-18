@@ -71,7 +71,6 @@
   </div>
   <Dialog class="my-dialog" v-model="isDetailVisible" @closeViews="closeViews" :detail="detail" :selectType="activeIndex" @fresh="search" />
 </template>
-
 <script>
 import { reactive, toRefs } from '@vue/reactivity'
 import { myData } from './assets/Json/印象笔记.js'
