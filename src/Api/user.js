@@ -1,7 +1,6 @@
 import AV from 'leancloud-storage'
 // 用户登录
 const login = (username, password) => {
-  console.log(username, password)
   return new Promise((resolve, reject) => {
     AV.User.logIn(username, password).then(user => {
       resolve(user)
@@ -12,10 +11,9 @@ const login = (username, password) => {
 }
 
 // 用户登录
-const loginEmail = (username, password) => {
-  console.log(username, password)
+const loginEmail = (email, password) => {
   return new Promise((resolve, reject) => {
-    AV.User.loginWithEmail(username, password).then(user => {
+    AV.User.loginWithEmail(password, email).then(user => {
       resolve(user)
     }).catch(error => {
       reject(error)

@@ -58,11 +58,11 @@ export default {
       refruleForm.value.validate((valid) => {
         if (valid) {
           const formData = { ...form.ruleForm }
-          Api.loginEmail(formData.email, formData.password)
+          Api.login(formData.email, formData.password)
             .then((res) => {
               // 存储token
               Cookie.set('userInfo', JSON.stringify(res))
-              ElMessage.success('登记成功')
+              ElMessage.success('登录成功')
               closeViews()
             })
             .catch(() => {
