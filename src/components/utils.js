@@ -1,7 +1,5 @@
-import {saveObject, getObject} from '../Api/common.js'
-import { ElMessage } from 'element-plus'
-
-function walkBookmarksTree(root) {
+// 格式化浏览器书签
+export function walkBookmarksTree(root) {
   const result = []
   // 深度优先遍历
   const walk = (node, list) => {
@@ -29,7 +27,7 @@ function walkBookmarksTree(root) {
           // 文件夹
           if (isDir) {
             child = {
-              name: item.tagName === 'DT' ? item.querySelector('h3') ? item.querySelector('h3').innerText : '' : '',
+              type: item.tagName === 'DT' ? item.querySelector('h3') ? item.querySelector('h3').innerText : '' : '',
               folder: true,
               children: []
             }
@@ -38,7 +36,7 @@ function walkBookmarksTree(root) {
             const _item = item.querySelector('a')
             if (_item) {
               child = {
-                name: _item?.innerText,
+                title: _item?.innerText,
                 url: _item?.href
               }
             }
@@ -49,33 +47,27 @@ function walkBookmarksTree(root) {
     }
   }
   walk(root, result)
-  return result
+  const myBookmark = result.filter(v => v.folder)
+  return flagBrowerList(myBookmark)
 }
 
-// 导入
-export function importBookmark() {
-  const file = document.getElementById('file')
-  file.dispatchEvent(new MouseEvent('click'))
-  const mybookmark = document.getElementById('mybookmark')
-  document.getElementById('file').addEventListener('change', function () {
-    var file = document.getElementById('file').files[0]
-    var reader = new FileReader()
-    reader.readAsText(file, 'utf-8')
-    reader.onload = function () {
-      mybookmark.innerHTML = reader.result
-      console.log(walkBookmarksTree(mybookmark))
-      const formDatas = localStorage.getItem('BOOKMARK')
-      const params = {formDatas: formDatas}
-      console.log(params)
-      saveObject('BOOKMARK', params).then(res => {
-        console.log('导入成功', res)
-        ElMessage.success('导入成功')
-      })
-      // const myData = walkBookmarksTree(mybookmark)
-      // myData && localStorage.setItem('BOOKMARK', myData)
+// 降维书签数据
+const flagBrowerList = v => {
+  const res = []
+  const flatten = (v) => {
+    for (let i = 0; i < v.length; i++) {
+      if (v[i].folder) {
+        flatten(v[i].children)
+        const result = v[i]
+        result.children = result.children.filter(v => !v.folder)
+        res.push(result)
+      }
     }
-  })
+  }
+  flatten(v)
+  return res
 }
+
 // 导出数据为JSON下载
 export function exportBookmark() {
   if (localStorage.getItem('BOOKMARK')) {
@@ -94,11 +86,4 @@ export function exportBookmark() {
   } else {
     this.$message.warning('暂无可导出数据')
   }
-}
-
-// 获取远程书签
-export const getRemoteList = () => {
-  getObject('BOOKMARK').then(res => {
-    console.log('获取书签', res)
-  })
 }

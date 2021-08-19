@@ -5,10 +5,8 @@ export const saveObject = (className, params) => {
     const Todo = AV.Object.extend(className)
     const user = AV.User.current()
     var todo = new Todo()
-    for (var i in params) {
-      todo.set(i, params[i])
-    }
-    todo.set(user, user)
+    todo.set('formDatas', params.formDatas)
+    todo.set('user', user)
     todo.save().then((res) => {
       resolve(res)
     }, (error) => {

@@ -72,7 +72,7 @@
   <!-- 新增/修改弹窗 -->
   <Dialog class="my-dialog" v-model="isDetailVisible" @closeViews="closeViews" :detail="detail" :selectType="activeIndex" @fresh="search" />
   <!-- 登录弹窗 -->
-  <Login v-model="isLoginVisible" @closeViews="closeLoginViews" @setUser="setUsername"/>
+  <Login v-model="isLoginVisible" @closeViews="closeLoginViews" @setUser="setUsername" />
 </template>
 <script>
 import { reactive, toRefs } from '@vue/reactivity'
@@ -82,22 +82,11 @@ import Dialog from './components/Dialog.vue'
 import Login from './components/Login.vue'
 import gsap from 'gsap'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { importBookmark, exportBookmark, getRemoteList } from './components/utils.js'
+import { saveObject, getObject } from './Api/common.js'
+import { exportBookmark, walkBookmarksTree } from './components/utils.js'
 import Cookie from 'js-cookie'
 import Api from './Api/user.js'
 var rowData = []
-function getData(fn = () => {}) {
-  // 数据持久化
-  if (localStorage.getItem('BOOKMARK')) {
-    console.log('持久化数据')
-    rowData = JSON.parse(localStorage.getItem('BOOKMARK'))
-  } else {
-    localStorage.setItem('BOOKMARK', JSON.stringify(myData))
-    rowData = myData
-  }
-  fn()
-}
-getData()
 export default {
   components: { Dialog, Login },
   name: 'kestrel-bookmark',
@@ -114,10 +103,10 @@ export default {
 
     const data = reactive({
       activeIndex: 0,
-      data: rowData,
-      bookMark: rowData[0].children,
+      data: [],
+      bookMark: [],
       searchVal: '',
-      allData: flatten(rowData),
+      allData: [],
       isDetailVisible: false,
       isLoginVisible: false,
       detail: {},
@@ -125,18 +114,59 @@ export default {
         username: '未登录'
       }
     })
+    /*
+     **数据来源
+      1.未登录 缓存无数据 取默认
+      2.未登录 缓存有数据 取缓存
+      3.已登录 系统无数据 取默认
+      4.已登录 系统有数据 取系统数据
+    */
+    const getBookmarkList = (fn = () => {}) => {
+      if (Cookie.get('userInfo')) {
+        data.userInfo = JSON.parse(Cookie.get('userInfo'))
+      }
+      if (!data.userInfo.objectId) {
+        if (localStorage.getItem('BOOKMARK')) {
+          rowData = JSON.parse(localStorage.getItem('BOOKMARK'))
+        } else {
+          localStorage.setItem('BOOKMARK', JSON.stringify(myData))
+          rowData = JSON.parse(JSON.stringify(myData))
+        }
+        data.data = rowData
+        data.bookMark = rowData[0].children
+        data.allData = flatten(rowData)
+        fn()
+      } else {
+        // 已登录 系统无数据
+        getObject('BOOKMARK').then((res) => {
+          if (res.length > 0) {
+            rowData = JSON.parse(res[0].attributes.formDatas)
+          } else {
+            localStorage.setItem('BOOKMARK', JSON.stringify(myData))
+            rowData = JSON.parse(JSON.stringify(myData))
+          }
+        }).catch(() => {
+          localStorage.setItem('BOOKMARK', JSON.stringify(myData))
+          rowData = JSON.parse(JSON.stringify(myData))
+        }).finally(() => {
+          fn()
+          data.data = rowData
+          data.bookMark = rowData[0].children
+          data.allData = flatten(rowData)
+        })
+      }
+    }
+
     // 设置用户
     const setUsername = () => {
       if (Cookie.get('userInfo')) {
         data.userInfo = JSON.parse(Cookie.get('userInfo'))
       } else {
-        data.userInfo = {username: '未登录'}
+        data.userInfo = { username: '未登录' }
       }
+      getBookmarkList()
     }
     setUsername()
-
-    getRemoteList()
-
     // 全部数据筛选功能
     watch(
       () => data.searchVal,
@@ -181,14 +211,14 @@ export default {
     const closeViews = (v) => (data.isDetailVisible = v)
     const closeLoginViews = (v) => (data.isLoginVisible = v)
 
-    // 获取数据
+    // 获取书签分类数据
     const search = async () => {
-      await getData(() => {
+      await getBookmarkList(() => {
         data.data = rowData
         data.bookMark = rowData[data.activeIndex].children
       })
     }
-    // 删除
+    // 删除书签
     const deleteClick = (row) => {
       const myData = JSON.parse(localStorage.getItem('BOOKMARK'))
       const delDetail = Object.assign(row, {
@@ -217,19 +247,50 @@ export default {
       }).then(() => {
         const params = { username: '', password: '' }
         Api.logout(params.username, params.password).then((res) => {
-          console.log(res)
           Cookie.remove('userInfo')
           setUsername()
         })
         ElMessage({
           type: 'success',
-          message: '删除成功!'
+          message: '已退出登录'
         })
       })
     }
     // 登录或退出
     const loginClick = () => {
       data.userInfo.objectId ? LoginOut() : handleUserLogin()
+    }
+
+    // 导入书签
+    const importBookmark = () => {
+      if (data.userInfo.objectId) {
+        const file = document.getElementById('file')
+        file.dispatchEvent(new MouseEvent('click'))
+        const mybookmark = document.getElementById('mybookmark')
+        document.getElementById('file').addEventListener('change', function () {
+          var file = document.getElementById('file').files[0]
+          var reader = new FileReader()
+          reader.readAsText(file, 'utf-8')
+          reader.onload = function () {
+            mybookmark.innerHTML = reader.result
+            const formDatas = JSON.stringify(walkBookmarksTree(mybookmark))
+            if (formDatas) {
+              const params = { formDatas: formDatas }
+              saveBookmarkList(params)
+            }
+          }
+        })
+      } else {
+        ElMessage.warning('请先登录')
+      }
+    }
+
+    // 书签数据存储
+    const saveBookmarkList = (params) => {
+      saveObject('BOOKMARK', params).then((res) => {
+        ElMessage.success('导入成功')
+        getBookmarkList()
+      })
     }
 
     return {

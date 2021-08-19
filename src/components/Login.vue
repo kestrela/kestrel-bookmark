@@ -1,6 +1,6 @@
 <template>
   <el-dialog custom-class="my-dialog" title="用户登录" :visible="isLoginVisible" width="400px">
-    <el-form status-icon ref="refruleForm" :rules="rules" :model="ruleForm" label-width="80px" size="small">
+    <el-form status-icon ref="refruleForm" :rules="rules" :model="ruleForm" label-width="60px" size="small">
       <el-row>
         <el-col :span="24">
           <el-form-item label="邮箱" prop="email">
@@ -50,7 +50,7 @@ export default {
     // 定义校验规则 表单代码中必须以 :rules 接收
     const rules = {
       password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-      email: [{type: 'email', required: true, message: '请输入邮箱', trigger: 'blur' }]
+      email: [{type: 'email', required: true, message: '请输入正确的邮箱', trigger: 'blur' }]
     }
     const refruleForm = ref(null)
     // 确定按钮的格式
@@ -60,18 +60,22 @@ export default {
           const formData = { ...form.ruleForm }
           Api.login(formData.email, formData.password)
             .then((res) => {
-              // 存储token
               Cookie.set('userInfo', JSON.stringify(res))
+              context.emit('setUser')
               ElMessage.success('登录成功')
               closeViews()
             })
-            .catch(() => {
-              Api.register(formData.email, formData.password).then((res) => {
-                Cookie.set('userInfo', JSON.stringify(res))
-                context.emit('setUser')
-                ElMessage.success('注册成功')
-                closeViews()
-              })
+            .catch((err) => {
+              if (err.code === 210) {
+                ElMessage.error('账号或密码不正确')
+              } else if (err.code === 211) {
+                Api.register(formData.email, formData.password).then((res) => {
+                  Cookie.set('userInfo', JSON.stringify(res))
+                  context.emit('setUser')
+                  ElMessage.success('注册成功')
+                  closeViews()
+                })
+              }
             })
         }
       })

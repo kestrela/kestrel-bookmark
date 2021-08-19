@@ -112,7 +112,6 @@ export default {
               }
             } else {
               // 新增书签
-              console.log('---?')
               if (v.type === formData.type) {
                 v.children.push(formData)
                 ElMessage.success('新增成功')
