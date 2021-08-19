@@ -3,10 +3,12 @@ import AV from 'leancloud-storage'
 export const saveObject = (className, params) => {
   return new Promise((resolve, reject) => {
     const Todo = AV.Object.extend(className)
+    const user = AV.User.current()
     var todo = new Todo()
     for (var i in params) {
       todo.set(i, params[i])
     }
+    todo.set(user, user)
     todo.save().then((res) => {
       resolve(res)
     }, (error) => {
@@ -20,11 +22,13 @@ export const getObject = (className, params) => {
   return new Promise((resolve, reject) => {
     const query = new AV.Query(className)
     // 查询多个条件
+    const user = AV.User.current()
     for (const v in params) {
       if (params[v]) {
         query.equalTo(v, params[v])
       }
     }
+    query.equalTo('user', user)
     query.find().then((res) => {
       resolve(res)
     }, (error) => {

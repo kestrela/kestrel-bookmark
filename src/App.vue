@@ -82,7 +82,7 @@ import Dialog from './components/Dialog.vue'
 import Login from './components/Login.vue'
 import gsap from 'gsap'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { importBookmark, exportBookmark } from './components/utils.js'
+import { importBookmark, exportBookmark, getRemoteList } from './components/utils.js'
 import Cookie from 'js-cookie'
 import Api from './Api/user.js'
 var rowData = []
@@ -125,7 +125,7 @@ export default {
         username: '未登录'
       }
     })
-
+    // 设置用户
     const setUsername = () => {
       if (Cookie.get('userInfo')) {
         data.userInfo = JSON.parse(Cookie.get('userInfo'))
@@ -134,6 +134,8 @@ export default {
       }
     }
     setUsername()
+
+    getRemoteList()
 
     // 全部数据筛选功能
     watch(

@@ -1,3 +1,6 @@
+import {saveObject, getObject} from '../Api/common.js'
+import { ElMessage } from 'element-plus'
+
 function walkBookmarksTree(root) {
   const result = []
   // 深度优先遍历
@@ -61,6 +64,13 @@ export function importBookmark() {
     reader.onload = function () {
       mybookmark.innerHTML = reader.result
       console.log(walkBookmarksTree(mybookmark))
+      const formDatas = localStorage.getItem('BOOKMARK')
+      const params = {formDatas: formDatas}
+      console.log(params)
+      saveObject('BOOKMARK', params).then(res => {
+        console.log('导入成功', res)
+        ElMessage.success('导入成功')
+      })
       // const myData = walkBookmarksTree(mybookmark)
       // myData && localStorage.setItem('BOOKMARK', myData)
     }
@@ -84,4 +94,11 @@ export function exportBookmark() {
   } else {
     this.$message.warning('暂无可导出数据')
   }
+}
+
+// 获取远程书签
+export const getRemoteList = () => {
+  getObject('BOOKMARK').then(res => {
+    console.log('获取书签', res)
+  })
 }
