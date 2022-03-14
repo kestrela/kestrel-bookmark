@@ -12,7 +12,6 @@
             <el-input v-model="ruleForm.password" show-password placeholder="请输入密码"></el-input>
           </el-form-item>
         </el-col>
-
       </el-row>
     </el-form>
     <template #footer>

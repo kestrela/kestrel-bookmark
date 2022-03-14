@@ -14,9 +14,8 @@
           <img src="./assets/svg/add.svg" class="tool-icon" @click="add({},'add')" />
           <a title="我的博客" href="https://zhanhongzhu.top" target="_blank"><img src="./assets/svg/blog.svg" class="tool-icon" /></a>
           <a title="在线翻译" href="https://translate.google.cn" target="_blank"><img src="./assets/svg/translate.svg" class="tool-icon" /></a>
-          <span class="login-s" @click="loginClick"><img src="./assets/svg/user.svg" class="tool-icon" title="已登录"/><span class="login-status" :title="userInfo.username">{{userInfo.username.slice(0, 5)}}</span></span>
+          <span class="login-s" @click="loginClick"><img src="./assets/svg/user.svg" class="tool-icon" title="已登录" /><span class="login-status" :title="userInfo.username">{{userInfo.username.slice(0, 5)}}</span></span>
         </div>
-
         <!-- userInfo.objectId?LoginOut:handleUserLogin -->
       </div>
       <!-- 侧边导航栏 -->
@@ -138,22 +137,25 @@ export default {
         fn()
       } else {
         // 已登录 系统无数据
-        getObject('BOOKMARK').then((res) => {
-          if (res.length > 0) {
-            rowData = JSON.parse(res[0].attributes.formDatas)
-          } else {
+        getObject('BOOKMARK')
+          .then((res) => {
+            if (res.length > 0) {
+              rowData = JSON.parse(res[0].attributes.formDatas)
+            } else {
+              localStorage.setItem('BOOKMARK', JSON.stringify(myData))
+              rowData = JSON.parse(JSON.stringify(myData))
+            }
+          })
+          .catch(() => {
             localStorage.setItem('BOOKMARK', JSON.stringify(myData))
             rowData = JSON.parse(JSON.stringify(myData))
-          }
-        }).catch(() => {
-          localStorage.setItem('BOOKMARK', JSON.stringify(myData))
-          rowData = JSON.parse(JSON.stringify(myData))
-        }).finally(() => {
-          fn()
-          data.data = rowData
-          data.bookMark = rowData[0].children
-          data.allData = flatten(rowData)
-        })
+          })
+          .finally(() => {
+            fn()
+            data.data = rowData
+            data.bookMark = rowData[0].children
+            data.allData = flatten(rowData)
+          })
       }
     }
 
