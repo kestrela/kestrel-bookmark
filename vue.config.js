@@ -3,7 +3,6 @@ module.exports = {
   devServer: {
     port: 8080,
     proxy: {
-      // 配置前端代理转发地址
       '/api': {
         target: 'https://api.zhanhongzhu.top',
         changeOrigin: true,

@@ -2,9 +2,7 @@
 theme: v-green
 ---
 # Part1用Vue3.0 开发一款导入浏览器书签的在线书签
-
 ## 🤵介绍（取名）
-
 👉👉👉【红隼书签】是一款简洁的在线书签导航网站。 名字的由来其实是，本着保护动物，爱护动物的初心，想到起一个鸟类的名称，其实最开始想了很多名字，小詹书签，麻雀书签等。
 
 ![红隼-kestrel](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ace153ff51d04a4da78f3616c08c58c0~tplv-k3u1fbpfcp-zoom-1.image)
@@ -275,11 +273,9 @@ export const updateObject = (className, params) => {
 需要什么新的需求或者设计，可以给我提[issue](https://gitee.com/zhanhongzhu/kestrel-bookmark/issues),感谢，喜欢的也可以点个赞。
 
 ## 💯 致谢
-
 第一次做一个开源的东西，只想把这个小项目做好，感谢 【空白i】 的打赏 【66.6】，太激动啦；继续加油，希望可以做出更多更精致开源的作品处理。继续加油。😀 😀 😀
 
 ## 😀 其他链接
-
 -   [我的博客(收集各类大神的学习笔记及官方文档，强烈推荐)](https:/zhanhongzhu.top)
 -   [红隼书签](http://bookmark.zhanhongzhu.top)
 -   [掘金](https://juejin.im/user/5cc6757ce51d456e5238ca23)

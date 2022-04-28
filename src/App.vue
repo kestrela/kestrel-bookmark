@@ -203,12 +203,10 @@ export default {
       }
       data.isDetailVisible = true
     }
-
     // 用户登录
     const handleUserLogin = () => {
       data.isLoginVisible = true
     }
-
     // 关闭弹窗事件
     const closeViews = (v) => (data.isDetailVisible = v)
     const closeLoginViews = (v) => (data.isLoginVisible = v)

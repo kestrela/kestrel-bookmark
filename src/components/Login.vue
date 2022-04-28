@@ -45,11 +45,17 @@ export default {
         password: ''
       }
     })
-    // 用户
     // 定义校验规则 表单代码中必须以 :rules 接收
     const rules = {
       password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-      email: [{type: 'email', required: true, message: '请输入正确的邮箱', trigger: 'blur' }]
+      email: [
+        {
+          type: 'email',
+          required: true,
+          message: '请输入正确的邮箱',
+          trigger: 'blur'
+        }
+      ]
     }
     const refruleForm = ref(null)
     // 确定按钮的格式
@@ -91,8 +97,7 @@ export default {
       refruleForm,
       rules
     }
-  },
-  methods: {}
+  }
 }
 </script>
 

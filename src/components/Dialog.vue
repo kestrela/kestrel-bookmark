@@ -46,21 +46,21 @@ import { ElMessage } from 'element-plus'
 export default {
   model: {
     value: 'isDetailVisible',
-    events: 'closeViews',
+    events: 'closeViews'
   },
   props: {
     isDetailVisible: {
       type: Boolean,
-      default: false,
+      default: false
     },
     selectType: {
       type: Number,
-      default: 0,
+      default: 0
     },
     detail: {
       type: Object,
-      default: () => {},
-    },
+      default: () => {}
+    }
   },
   setup(props, context) {
     const isBOOKMARK = JSON.parse(localStorage.getItem('BOOKMARK'))
@@ -71,13 +71,13 @@ export default {
         type: '',
         desc: '',
         url: '',
-        logo: '',
-      },
+        logo: ''
+      }
     })
     // 定义校验规则 表单代码中必须以 :rules 接收
     const rules = {
       title: [{ required: true, message: '请输入书签名称', trigger: 'blur' }],
-      type: [{ required: true, message: '请选择书签类别', trigger: 'change' }],
+      type: [{ required: true, message: '请选择书签类别', trigger: 'change' }]
     }
     const refruleForm = ref(null)
     // 确定按钮的格式
@@ -150,13 +150,11 @@ export default {
       submitForm,
       refruleForm,
       rules,
-      BOOKMARK,
+      BOOKMARK
     }
-  },
-  methods: {},
+  }
 }
 </script>
-
 <style scoped lang="scss">
 .my-dialog {
   background: red;

@@ -14,7 +14,6 @@ export const saveObject = (className, params) => {
     })
   })
 }
-
 // 获取对象列表
 export const getObject = (className, params) => {
   return new Promise((resolve, reject) => {
@@ -45,7 +44,6 @@ export const deleteObject = (className, id) => {
     })
   })
 }
-
 // 更新对象
 export const updateObject = (className, params) => {
   return new Promise((resolve, reject) => {

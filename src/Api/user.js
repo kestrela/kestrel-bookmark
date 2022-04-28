@@ -9,7 +9,6 @@ const login = (username, password) => {
     })
   })
 }
-
 // 用户登录
 const loginEmail = (email, password) => {
   return new Promise((resolve, reject) => {
@@ -28,7 +27,6 @@ const logout = (username, password) => {
     })
   })
 }
-
 // 用户注册
 const register = (username, password) => {
   return new Promise((resolve, reject) => {
