@@ -7,7 +7,7 @@ theme: v-green
 
 ![红隼-kestrel](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ace153ff51d04a4da78f3616c08c58c0~tplv-k3u1fbpfcp-zoom-1.image)
 
-但是听起来都不够响亮。后来 皮皮 同学，帮我想了一个食肉的，有点凶猛的又有点呆萌的鸟类的名字，红隼【英文翻译：kestrel】，点个赞。于是就有了这个名字啦，但是听起来也是不错的。于是开发计划开始啦。
+但是听起来都不够响亮。后来想了一个食肉的，有点凶猛的又有点呆萌的鸟类的名字，红隼【英文翻译：kestrel】，点个赞。于是就有了这个名字啦，但是听起来也是不错的。于是开发计划开始啦。
 
 ## 数据来源（[印象中文](https://docschina.org/)）
 
