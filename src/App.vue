@@ -1,5 +1,4 @@
 <template>
-  <div class="bg"></div>
   <div id="app">
     <div class="bookmark" id="bookmark">
       <div class="tool-bar">
@@ -13,7 +12,7 @@
           </div>
           <img src="./assets/svg/add.svg" class="tool-icon" @click="add({},'add')" />
           <a title="我的博客" href="https://zhanhongzhu.top" target="_blank"><img src="./assets/svg/blog.svg" class="tool-icon" /></a>
-          <a title="在线翻译" href="https://translate.google.cn" target="_blank"><img src="./assets/svg/translate.svg" class="tool-icon" /></a>
+          <a title="github" href="https://github.com" target="_blank"><img src="./assets/svg/translate.svg" class="tool-icon" /></a>
           <span class="login-s" @click="loginClick"><img src="./assets/svg/user.svg" class="tool-icon" title="已登录" /><span class="login-status" :title="userInfo.username">{{userInfo.username.slice(0, 5)}}</span></span>
         </div>
         <!-- userInfo.objectId?LoginOut:handleUserLogin -->
@@ -29,11 +28,13 @@
           </div>
           <!-- 导入导出 -->
           <div class="import-tool">
-            <span class="import-text">导入/导出：&nbsp;</span>
+            <span class="import-text">导入/导出:</span>
             <i class="el-icon-upload2" title="导入浏览器书签" @click="importBookmark">
               <input type="file" ref="filElem" id="file">
             </i>
             <i class="el-icon-download" title="导出浏览器书签" @click="exportBookmark"></i>
+            <i class="el-icon-setting" title="配置项" @click="configClick"></i>
+            <i class="el-icon-refresh" title="重置" @click="resetClick"></i>
           </div>
         </div>
         <div class="right-box">
@@ -72,22 +73,30 @@
   <Dialog class="my-dialog" v-model="isDetailVisible" @closeViews="closeViews" :detail="detail" :selectType="activeIndex" @fresh="search" />
   <!-- 登录弹窗 -->
   <Login v-model="isLoginVisible" @closeViews="closeLoginViews" @setUser="setUsername" />
+
+  <!-- 配置项-背景 动画效果 -->
+  <Configd v-model="isConfigVisible" @closeViews="closeConfigViews" @fresh="fresh" />
+
+  <!-- 配置项-背景 -->
+  <Bg ref="bgRef" />
 </template>
 <script>
-import { reactive, toRefs } from '@vue/reactivity'
+import { reactive, toRefs, watch, ref, onMounted, computed } from 'vue'
 import { myData } from './assets/Json/印象笔记.js'
-import { watch } from '@vue/runtime-core'
 import Dialog from './components/Dialog.vue'
+import Bg from './components/Bg.vue'
 import Login from './components/Login.vue'
+import Configd from './components/Configd.vue'
 import gsap from 'gsap'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { saveObject, getObject } from './Api/common.js'
 import { exportBookmark, walkBookmarksTree } from './components/utils.js'
 import Cookie from 'js-cookie'
+import { themeConfig } from './components/theme'
 import Api from './Api/user.js'
 var rowData = []
 export default {
-  components: { Dialog, Login },
+  components: { Dialog, Login, Configd, Bg },
   name: 'kestrel-bookmark',
   setup() {
     // 扁平化数组
@@ -108,10 +117,13 @@ export default {
       allData: [],
       isDetailVisible: false,
       isLoginVisible: false,
+      isConfigVisible: false,
       detail: {},
       userInfo: {
         username: '未登录'
-      }
+      },
+      themeStyle: {},
+      theme: 'light'
     })
     /*
      **数据来源
@@ -207,6 +219,13 @@ export default {
     const handleUserLogin = () => {
       data.isLoginVisible = true
     }
+
+    // 配置项
+    const configClick = () => {
+      data.isConfigVisible = true
+    }
+    const closeConfigViews = (v) => (data.isConfigVisible = v)
+
     // 关闭弹窗事件
     const closeViews = (v) => (data.isDetailVisible = v)
     const closeLoginViews = (v) => (data.isLoginVisible = v)
@@ -292,8 +311,71 @@ export default {
         getBookmarkList()
       })
     }
+    const bgRef = ref(null)
+    const fresh = () => {
+      setTheme()
+      bgRef.value.init()
+    }
+
+    // 设置主题
+    const setTheme = () => {
+      const obj1 = localStorage.getItem('granimConfig')
+      if (obj1) {
+        const obj = JSON.parse(obj1)
+        data.theme = obj.theme
+        data.themeStyle = themeConfig[`${data.theme}`]
+        data.themeStyle.opacity0 =
+          obj.opacity0 && obj.opacity0 > 0.5 ? obj.opacity0 : 0.5
+      } else {
+        data.themeStyle = themeConfig.light
+        data.themeStyle.opacity0 = 0.8
+      }
+    }
+    // 背景色
+    const bgColor = computed(() => {
+      return themeConfig[`${data.theme}`].bgColor
+    })
+    // 激活样式
+    const activeColor = computed(() => {
+      return themeConfig[`${data.theme}`].activeColor
+    })
+    // 亮度
+    const opacity0 = computed(() => {
+      return data.themeStyle.opacity0
+    })
+    // 文字颜色
+    const textColor = computed(() => {
+      return themeConfig[`${data.theme}`].textColor
+    })
+    // 边框色
+    const borderColor = computed(() => {
+      return themeConfig[`${data.theme}`].borderColor
+    })
+    // 滚动条样式
+    const scrollbarColor = computed(() => {
+      return themeConfig[`${data.theme}`].scrollbarColor
+    })
+
+    onMounted(() => {
+      setTheme()
+    })
+
+    // 重置配置项
+    const resetClick = () => {
+      localStorage.removeItem('granimConfig')
+      bgRef.value.init()
+    }
 
     return {
+      scrollbarColor,
+      textColor,
+      opacity0,
+      activeColor,
+      borderColor,
+      bgColor,
+      resetClick,
+      bgRef,
+      fresh,
       deleteClick,
       ...toRefs(data),
       selectType,
@@ -305,7 +387,9 @@ export default {
       importBookmark,
       exportBookmark,
       loginClick,
-      setUsername
+      setUsername,
+      configClick,
+      closeConfigViews
     }
   },
   methods: {
@@ -339,17 +423,21 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
 .bookmark {
   position: relative;
-  margin-top: 10vh;
+  margin-top: 8vh;
   width: 1200px;
-  height: calc(80vh);
+  height: calc(75vh);
   border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
   border-radius: 6px;
-  background: #fff;
+  background: v-bind(bgColor);
+  opacity: v-bind(opacity0);
   .left-box {
     width: 200px;
     height: 100%;
@@ -366,11 +454,11 @@ export default {
     }
     .active {
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-      background: #a0cae6;
+      background: v-bind(activeColor);
     }
     .inactive {
       box-shadow: none;
-      background: #fff;
+      background: v-bind(bgColor);
     }
     .label {
       font-size: 14px;
@@ -381,7 +469,7 @@ export default {
       padding: 10px 15px;
       &:hover {
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-        background: #a0cae6;
+        background: v-bind(activeColor);
       }
       .text-elipss {
         overflow: hidden;
@@ -420,6 +508,7 @@ export default {
           animation-delay: 0.3ms;
           animation: 0.3ms;
           box-shadow: 0 8px 18px 0 rgba(31, 38, 135, 0.3);
+          background: v-bind(activeColor);
         }
         &:hover .logo-box-tools {
           opacity: 0.85;
@@ -441,12 +530,12 @@ export default {
 }
 .tool-bar {
   height: 48px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid v-bind(borderColor);
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgb(250, 248, 248);
+  background: v-bind(bgColor);
   .tool-logo {
     margin: 0 15px;
     a {
@@ -482,7 +571,7 @@ export default {
       height: 2rem;
       color: #4e6e8e;
       display: inline-block;
-      border: 1px solid #eaecef;
+      border: 1px solid v-bind(borderColor);
       border-radius: 0.25rem;
       font-size: 0.9rem;
       line-height: 2rem;
@@ -495,6 +584,14 @@ export default {
     }
   }
 }
+
+::-webkit-scrollbar-thumb {
+  background-color: v-bind(scrollbarColor);
+  background-clip: padding-box;
+  min-height: 28px;
+  border-radius: 10px;
+}
+
 .box-m {
   display: flex;
   height: calc(100% - 50px);
@@ -503,6 +600,7 @@ export default {
   width: 62px;
   height: 100%;
   margin-right: 10px;
+  filter: drop-shadow(0px 0px 1px #888);
   img {
     height: 100%;
     width: 100%;
@@ -522,7 +620,7 @@ export default {
     padding-top: 3px;
     font-size: 16px;
     font-weight: bold;
-    color: #000000;
+    color: v-bind(textColor);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -537,7 +635,8 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: rgba(0, 0, 0, 0.7);
+    color: v-bind(textColor);
+    opacity: 0.8;
     display: block;
   }
 }
@@ -568,14 +667,6 @@ export default {
     color: #999;
   }
 }
-.bg {
-  position: fixed;
-  z-index: -999;
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  background: url(./assets/bg.jpg);
-}
 
 .logo-box-tools {
   position: absolute;
@@ -597,17 +688,18 @@ export default {
 .import-tool {
   position: absolute;
   width: 100%;
-  background: #fbf5f5;
+  background: v-bind(bgColor);
   height: 36px;
-  padding: 3px 15px;
+  padding: 3px 10px;
   display: flex;
   align-items: center;
   bottom: 0;
   z-index: 99;
+  border-top: 1px solid v-bind(borderColor);
   i {
-    font-size: 18px;
-    margin: 1px 4px;
-    padding: 4px;
+    font-size: 15px;
+    margin: 1px 2px;
+    padding: 3px;
     cursor: pointer;
     color: #e03b5d;
     background: #ff00001f;

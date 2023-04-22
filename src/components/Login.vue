@@ -24,7 +24,7 @@
 </template>
 <script>
 import Cookie from 'js-cookie'
-import { reactive, ref, toRefs } from '@vue/reactivity'
+import { reactive, ref, toRefs } from 'vue'
 import { ElMessage } from 'element-plus'
 import Api from '../Api/user.js' // register
 export default {

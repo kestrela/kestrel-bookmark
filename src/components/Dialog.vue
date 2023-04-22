@@ -40,8 +40,7 @@
   </el-dialog>
 </template>
 <script>
-import { reactive, ref, toRefs } from '@vue/reactivity'
-import { nextTick, watch } from '@vue/runtime-core'
+import { reactive, ref, toRefs, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 export default {
   model: {
