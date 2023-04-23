@@ -629,15 +629,15 @@ export const updateObject = (className, params) => {
 
 需要什么新的需求或者设计，可以给我提[issue](https://gitee.com/zhanhongzhu/kestrel-bookmark/issues),感谢，喜欢的也可以点个赞。
 
-  
-
-
 ## 💯 致谢
 
 感谢 【空白i】 的打赏 【66.6】继续加油，希望可以做出更多更精致开源的作品处理。继续加油。😀 😀 😀
 
   
-
+## 捐赠
+请作者喝杯咖啡😀😀😀😀😀😀😀😀😀😀😀😀😀
+![2.png](https://zhanhongzhu.top/111.jpg)
+![2.png](https://zhanhongzhu.top/222.jpg)
 
 ## 😀 其他链接
 
