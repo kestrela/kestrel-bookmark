@@ -636,8 +636,11 @@ export const updateObject = (className, params) => {
   
 ## 捐赠
 请作者喝杯咖啡😀😀😀😀😀😀😀😀😀😀😀😀😀
-![2.png](https://zhanhongzhu.top/111.jpg)
-![2.png](https://zhanhongzhu.top/222.jpg)
+
+<img src="https://zhanhongzhu.top/111.jpg" style="height:280px;width:180px;border-radius:12px;object-fit:contain;"/>
+
+<img src="https://zhanhongzhu.top/222.jpg" style="height:280px;width:180px;border-radius:12px;object-fit:contain;"/>
+
 
 ## 😀 其他链接
 
